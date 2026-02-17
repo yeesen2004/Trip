@@ -1,250 +1,53 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Travel App - Designed by isonnn</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root { --primary-red: #C41E3A; --bg: #F5F7FA; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding-bottom: 120px; color: #333; }
-        header { background: #fff; padding: 20px 25px; border-top: 10px solid var(--primary-red); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        header h1 { margin: 0; font-size: 1.4rem; font-weight: 800; }
-        .tab-content { display: none; animation: fadeIn 0.3s ease; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+function loadSettings() {
+            Papa.parse(urls.settings, {
+                download: true,
+                complete: function(results) {
+                    const s = results.data;
+                    if(!s || s.length < 3) return;
 
-        .card { background: white; border-radius: 12px; margin: 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .card-header { display: flex; height: 80px; cursor: pointer; }
-        .header-left { background: var(--primary-red); color: white; width: 75px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .header-right { flex: 1; padding: 0 15px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; }
-        .timeline-item { position: relative; padding-left: 25px; border-left: 2px solid #eee; padding-bottom: 25px; margin: 0 20px; }
-        .timeline-dot { position: absolute; left: -7px; top: 2px; width: 12px; height: 12px; background: white; border: 3px solid var(--primary-red); border-radius: 50%; }
+                    // 1. 精准匹配你的截图位置
+                    // s[1] 是 Excel 的第 2 行
+                    homeCurrencyLabel = s[1][1] || 'MYR';   // B2: 本币名称
+                    const rateValue = parseFloat(s[1][2]);  // C2: 汇率数值 (3.9)
+                    
+                    // s[2] 是 Excel 的第 3 行
+                    foreignCurrencyLabel = s[2][1] || 'USD'; // B3: 外币名称
+                    
+                    globalExchangeRate = rateValue || 1; 
 
-        /* 记账界面样式 */
-        .expense-summary { background: var(--primary-red); color: white; padding: 25px 20px; margin: 15px; border-radius: 15px; }
-        .expense-card { background: white; border-radius: 15px; margin: 0 15px 15px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .expense-row { display: flex; align-items: center; gap: 15px; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
-        .category-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
-        .expense-info { flex: 1; }
-        .expense-info h4 { margin: 0; font-size: 0.95rem; }
-        .expense-info p { margin: 2px 0 0; font-size: 0.75rem; color: #999; }
-        .expense-amount { text-align: right; }
-        .amount-home { font-weight: 800; color: var(--primary-red); }
-        .amount-foreign { font-size: 0.7rem; color: #bbb; }
+                    document.getElementById('exchange-info').innerText = `参考汇率: 1 ${foreignCurrencyLabel} = ${globalExchangeRate} ${homeCurrencyLabel}`;
+                    
+                    // 2. 核心：从第 6 行（index 5）开始读取具体的消费列表
+                    const expCont = document.getElementById('expense-list-container');
+                    let total = 0;
+                    let html = '<div class="expense-card">';
+                    
+                    // 只读取有金额的行
+                    const dataRows = s.slice(5); 
+                    dataRows.forEach(r => {
+                        const amt = parseFloat(r[1]); // B列: 金额
+                        if(!r[0] || isNaN(amt)) return;
 
-        /* 输入控件样式 */
-        .input-group { display: flex; gap: 10px; margin-bottom: 10px; }
-        input, select { -webkit-appearance: none; border: 1px solid #eee; border-radius: 8px; padding: 12px; font-size: 0.9rem; outline: none; }
-        .btn-add { width: 100%; background: #1a1a1a; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; }
+                        const homeAmt = amt * globalExchangeRate;
+                        total += homeAmt;
+                        
+                        const cat = r[2] || '其他'; // C列: 分类
+                        const icon = icons[cat] || 'fa-wallet';
+                        const color = colors[cat] || '#82868B';
 
-        .tab-bar { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 85%; max-width: 400px; background: white; border-radius: 50px; display: flex; padding: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 1000; }
-        .tab-item { flex: 1; text-align: center; color: #aaa; padding: 8px 0; border-radius: 30px; font-size: 0.75rem; font-weight: bold; cursor: pointer; }
-        .tab-item.active { background: #FEE8EC; color: var(--primary-red); }
-    </style>
-</head>
-<body>
-
-    <header>
-        <h1 id="app-title">Loading...</h1>
-        <p id="app-subtitle" style="margin:5px 0 0; color:#888; font-size:0.9rem;">Connecting...</p>
-    </header>
-
-    <div id="tab-itinerary" class="tab-content active"><div id="itinerary-container"></div></div>
-    <div id="tab-hotel" class="tab-content"><div id="hotel-container"></div></div>
-
-    <div id="tab-expense" class="tab-content">
-        <div class="expense-summary">
-            <div style="font-size: 0.8rem; opacity: 0.8;">总支出 (Total Spent)</div>
-            <div id="total-cost" style="font-size: 2.2rem; font-weight: 800; margin: 8px 0;">RM 0.00</div>
-            <div id="exchange-info" style="font-size: 0.75rem; opacity: 0.7;">正在获取汇率...</div>
-        </div>
-
-        <div class="expense-card">
-            <div class="input-group">
-                <input type="number" id="input-amount" placeholder="金额 (円 JPY)" style="flex: 2;">
-                <select id="input-category" style="flex: 1.2;">
-                    <option value="餐饮">🍔 餐饮</option>
-                    <option value="交通">🚇 交通</option>
-                    <option value="购物">🛍️ 购物</option>
-                    <option value="住宿">🏨 住宿</option>
-                    <option value="其他">🧩 其他</option>
-                </select>
-            </div>
-            <input type="text" id="input-remark" placeholder="备注 (例如：一兰拉面)" style="width: 100%; box-sizing: border-box;">
-            
-            <button class="btn-add" onclick="addExpense()">
-                <i class="fas fa-plus"></i> 记一笔
-            </button>
-            
-            <div style="text-align: center; margin-top: 15px;">
-                <span style="color: var(--primary-red); font-size: 0.8rem; font-weight: bold; cursor: pointer;">
-                    <i class="fas fa-share-nodes"></i> 复制报表分享给家人
-                </span>
-            </div>
-        </div>
-
-        <div style="padding: 0 20px 10px; font-weight: 800; font-size: 0.9rem; color: #666;">消费记录</div>
-        <div id="expense-list-container"></div>
-    </div>
-
-    <nav class="tab-bar">
-        <div class="tab-item active" onclick="switchTab('itinerary', this)">📅 行程</div>
-        <div class="tab-item" onclick="switchTab('hotel', this)">🏨 酒店</div>
-        <div class="tab-item" onclick="switchTab('expense', this)">💰 记账</div>
-    </nav>
-
-    <script>
-        const urls = {
-            itinerary: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQpYPQwHzRDxweD0gs48yJH7lBy2sdN9m9oZnSQPa55Rjhnr2uTdU3V_UGHjVMRxxoYSzoEepZWAS2E/pub?gid=676918941&single=true&output=csv',
-            hotel: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQpYPQwHzRDxweD0gs48yJH7lBy2sdN9m9oZnSQPa55Rjhnr2uTdU3V_UGHjVMRxxoYSzoEepZWAS2E/pub?gid=237062416&single=true&output=csv',
-            settings: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQpYPQwHzRDxweD0gs48yJH7lBy2sdN9m9oZnSQPa55Rjhnr2uTdU3V_UGHjVMRxxoYSzoEepZWAS2E/pub?gid=2009249548&single=true&output=csv'
-        };
-
-        const icons = { '餐饮': 'fa-utensils', '交通': 'fa-car', '购物': 'fa-shopping-bag', '住宿': 'fa-hotel', '其他': 'fa-wallet' };
-        const colors = { '餐饮': '#FF9F43', '交通': '#00CFE8', '购物': '#EA5455', '住宿': '#7367F0', '其他': '#82868B' };
-
-        let currentRate = 0.026; // 默认汇率
-        let homeLabel = 'RM';
-        let foreignLabel = 'JPY';
-
-        window.onload = () => { 
-            loadItinerary(); 
-            loadHotels(); 
-            loadSettings(); 
-        };
-
-        function switchTab(id, el) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.getElementById('tab-' + id).classList.add('active');
-            document.querySelectorAll('.tab-item').forEach(i => i.classList.remove('active'));
-            el.classList.add('active');
-        }
-
-        function loadItinerary() {
-            Papa.parse(urls.itinerary, { download: true, complete: res => {
-                const data = res.data;
-                document.getElementById('app-title').innerText = data[0][1] || "Japan Trip";
-                document.getElementById('app-subtitle').innerText = data[1][1] || "Itinerary";
-                let days = new Map();
-                data.slice(4).forEach(r => {
-                    if(!r[0] || r[0] === 'Day') return;
-                    if(!days.has(r[0])) days.set(r[0], { n: r[0], d: r[1], l: r[3], e: [] });
-                    if(r[4]) days.get(r[0]).e.push({ t: r[2], a: r[4], r: r[5] });
-                });
-                const cont = document.getElementById('itinerary-container');
-                cont.innerHTML = "";
-                days.forEach(d => {
-                    let evs = d.e.map(e => `
-                        <div class="timeline-item"><div class="timeline-dot"></div>
-                        <div style="color:var(--primary-red);font-weight:700;font-size:0.75rem">${e.t}</div>
-                        <div style="font-weight:700;margin:2px 0">${e.a}</div>
-                        <div style="font-size:0.8rem;color:#666;background:#f8f8f8;padding:8px;border-radius:6px">${e.r}</div>
-                        </div>`).join('');
-                    cont.innerHTML += `<div class="card">
-                        <div class="card-header" onclick="let s=this.nextElementSibling.style; s.display=s.display==='block'?'none':'block'">
-                        <div class="header-left"><div>${d.n}</div><div style="font-size:0.6rem">${d.d}</div></div>
-                        <div class="header-right"><div>${d.l}</div><i class="fas fa-chevron-down" style="color:#eee"></i></div></div>
-                        <div style="display:none;padding:20px 0">${evs}</div></div>`;
-                });
-            }});
-        }
-
-        function loadHotels() {
-            Papa.parse(urls.hotel, { download: true, header: true, complete: res => {
-                const cont = document.getElementById('hotel-container');
-                cont.innerHTML = "";
-                res.data.forEach(h => {
-                    if(!h['Hotel Name']) return;
-                    cont.innerHTML += `<div class="card" style="padding:15px; border-left:5px solid var(--primary-red)">
-                        <div style="font-weight:800">${h['Hotel Name']}</div>
-                        <div style="font-size:0.8rem; color:var(--primary-red); margin:5px 0">${h['Date']}</div>
-                        <div style="font-size:0.8rem; color:#666">${h['Address']}</div>
-                        </div>`;
-                });
-            }});
-        }
-
-        function loadSettings() {
-            Papa.parse(urls.settings, { download: true, complete: res => {
-                const s = res.data;
-                homeLabel = s[1][1] || 'RM';
-                foreignLabel = s[2][1] || 'JPY';
-                currentRate = parseFloat(s[1][2]) || 0.026;
-                
-                document.getElementById('exchange-info').innerText = `≈ 0 円 (汇率 ${currentRate})`;
-                
-                renderExpenseList(s.slice(5));
-            }});
-        }
-
-        function renderExpenseList(rows) {
-            const expCont = document.getElementById('expense-list-container');
-            let total = 0;
-            let html = '<div class="expense-card" id="list-inner">';
-            
-            rows.forEach(r => {
-                if(!r[0] || isNaN(parseFloat(r[1]))) return;
-                const amt = parseFloat(r[1]);
-                const homeAmt = amt * currentRate;
-                total += homeAmt;
-                const cat = r[2] || '其他';
-                const icon = icons[cat] || 'fa-wallet';
-                const color = colors[cat] || '#82868B';
-                
-                html += `<div class="expense-row">
-                    <div class="category-icon" style="background:${color}20; color:${color}"><i class="fas ${icon}"></i></div>
-                    <div class="expense-info"><h4>${r[0]}</h4><p>${cat}</p></div>
-                    <div class="expense-amount">
-                        <div class="amount-home">${homeLabel} ${homeAmt.toFixed(2)}</div>
-                        <div class="amount-foreign">${amt} ${foreignLabel}</div>
-                    </div>
-                </div>`;
+                        html += `
+                            <div class="expense-row">
+                                <div class="category-icon" style="background:${color}20; color:${color}"><i class="fas ${icon}"></i></div>
+                                <div class="expense-info"><h4>${r[0]}</h4><p>${cat}</p></div>
+                                <div class="expense-amount">
+                                    <div class="amount-home">${homeCurrencyLabel} ${homeAmt.toFixed(2)}</div>
+                                    <div class="amount-foreign">${amt} ${foreignCurrencyLabel}</div>
+                                </div>
+                            </div>`;
+                    });
+                    
+                    expCont.innerHTML = html + '</div>';
+                    document.getElementById('total-cost').innerText = `${homeCurrencyLabel} ${total.toFixed(2)}`;
+                }
             });
-            expCont.innerHTML = html + '</div>';
-            document.getElementById('total-cost').innerText = `${homeLabel} ${total.toFixed(2)}`;
         }
-
-        function addExpense() {
-            const amtInput = document.getElementById('input-amount');
-            const remarkInput = document.getElementById('input-remark');
-            const cat = document.getElementById('input-category').value;
-            
-            if(!amtInput.value) { alert("请输入金额"); return; }
-
-            const amt = parseFloat(amtInput.value);
-            const remark = remarkInput.value || cat;
-            const homeAmt = (amt * currentRate).toFixed(2);
-            const icon = icons[cat] || 'fa-wallet';
-            const color = colors[cat] || '#82868B';
-
-            // 动态插入新记录
-            const newRow = `
-                <div class="expense-row" style="animation: fadeIn 0.5s ease; background: #fffde7;">
-                    <div class="category-icon" style="background:${color}20; color:${color}"><i class="fas ${icon}"></i></div>
-                    <div class="expense-info"><h4>${remark}</h4><p>${cat}</p></div>
-                    <div class="expense-amount">
-                        <div class="amount-home">${homeLabel} ${homeAmt}</div>
-                        <div class="amount-foreign">${amt} ${foreignLabel}</div>
-                    </div>
-                </div>`;
-            
-            const listInner = document.getElementById('list-inner');
-            if(listInner) {
-                listInner.insertAdjacentHTML('afterbegin', newRow);
-            }
-
-            // 更新总额显示
-            const currentTotalStr = document.getElementById('total-cost').innerText.replace(homeLabel, '').trim();
-            const newTotal = (parseFloat(currentTotalStr) + parseFloat(homeAmt)).toFixed(2);
-            document.getElementById('total-cost').innerText = `${homeLabel} ${newTotal}`;
-
-            // 清空并反馈
-            amtInput.value = '';
-            remarkInput.value = '';
-            console.log("已添加记录:", {remark, amt, cat});
-        }
-    </script>
-</body>
-</html>
