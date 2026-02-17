@@ -10,28 +10,94 @@
         :root { --primary: #C41E3A; --bg: #F5F7FA; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding-bottom: 120px; color: #333; -webkit-tap-highlight-color: transparent; }
         
-        /* === 1. 修改头部 Banner 为红色固顶效果 === */
+        /* === 1. Header 修改：白底 + 顶部红条 (符合图一要求) === */
         header { 
-            background: var(--primary); /* 纯红背景 */
+            background: #fff; 
             padding: 20px 25px; 
-            position: sticky; /* 固顶效果 */
+            border-top: 12px solid var(--primary); /* 红色 Banner 在 Title 上面 */
+            position: sticky; 
             top: 0; 
             z-index: 100; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
-            color: white; /* 文字变白 */
-            border-top: none; /* 去掉之前的红边框 */
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05); 
         }
-        h1 { margin: 0; font-size: 1.4rem; font-weight: 800; color: white; }
-        p { margin: 5px 0 0; color: rgba(255,255,255,0.9); font-size: 0.9rem; }
-        /* 强制副标题签名也变白 */
-        .subtitle-row span { color: rgba(255,255,255,0.7) !important; }
+        h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: #1a1a1a; margin-bottom: 4px; }
+        p { margin: 0; color: #888; font-size: 0.9rem; font-weight: 500; }
+        .credit-tag { font-size: 0.65rem; color: #ddd; font-style: italic; font-weight: 400; }
 
-
+        /* 布局容器 */
         .tab-content { display: none; animation: fadeIn 0.3s; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
 
-        /* 行程卡片 (保持上次修改不变) */
+        /* === 2. 酒店卡片精修 (完全复刻图二样式) === */
+        .hotel-card { 
+            background: white; 
+            border-radius: 12px; 
+            margin: 15px; 
+            padding: 20px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03); 
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        
+        /* Tag 标签样式 (Airbnb/Hotel) */
+        .hotel-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .tag-airbnb { background: #E8F5E9; color: #2E7D32; } /* 绿色 */
+        .tag-hotel { background: #E3F2FD; color: #1565C0; }  /* 蓝色 */
+        .tag-other { background: #F5F5F5; color: #666; }
+
+        /* 标题样式：包含图标 */
+        .hotel-header-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+        .hotel-icon-pin { color: #E91E63; font-size: 1rem; } /* 粉色定位图标 */
+        .hotel-title { font-size: 1.15rem; font-weight: 800; color: #333; line-height: 1.4; }
+        
+        /* 日期样式 */
+        .hotel-date { font-size: 0.8rem; color: #999; margin-bottom: 15px; padding-left: 2px; }
+
+        /* 地址框样式 */
+        .hotel-address-box {
+            background: #F9FAFB;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            color: #333;
+            font-weight: 600;
+            line-height: 1.6;
+        }
+        .hotel-remark { 
+            font-size: 0.85rem; 
+            color: #666; 
+            font-weight: 400; 
+            margin-top: 6px; 
+            display: block;
+        }
+
+        /* 按钮组 */
+        .hotel-btns { display: flex; gap: 10px; }
+        .btn-nav { 
+            flex: 2; 
+            background: #BC002D; color: white; 
+            text-align: center; padding: 12px; border-radius: 8px; 
+            text-decoration: none; font-weight: 700; font-size: 0.9rem; 
+            border: none; display: flex; align-items: center; justify-content: center; gap: 6px;
+            box-shadow: 0 4px 10px rgba(188, 0, 45, 0.2);
+        }
+        .btn-copy { 
+            flex: 1; 
+            background: #F0F0F0; color: #333; 
+            text-align: center; padding: 12px; border-radius: 8px; 
+            font-weight: 700; font-size: 0.9rem; 
+            border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+        }
+
+        /* === 行程卡片 (保持不变) === */
         .card { background: white; border-radius: 12px; margin: 15px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: none; }
         .card-header { display: flex; height: 80px; cursor: pointer; transition: background 0.2s; }
         .header-left { background: #BC002D; color: white; width: 70px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
@@ -49,58 +115,9 @@
         .event-time { color: #BC002D; font-weight: 700; font-size: 0.85rem; margin-bottom: 4px; display: block; font-family: monospace; }
         .event-act { font-weight: 800; font-size: 1.05rem; color: #222; margin-bottom: 8px; }
         .event-remark { background: #FFF0F5; border-left: 4px solid #BC002D; padding: 10px 12px; border-radius: 4px; font-size: 0.9rem; color: #555; line-height: 1.5; margin-bottom: 10px; }
-        
-        /* === 2. 酒店卡片新样式 (参考图二重写) === */
-        .hotel-card { 
-            background: white; 
-            border-radius: 12px; 
-            margin: 15px; 
-            padding: 20px; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
-            /* 去掉左侧红边框，改用内部结构 */
-        }
-        .hotel-tag {
-            display: inline-block;
-            background: #E8F5E9; /* 浅绿色背景 */
-            color: #2E7D32;      /* 深绿色文字 */
-            font-size: 0.7rem;
-            padding: 4px 8px;
-            border-radius: 4px;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-        .hotel-title { font-size: 1.1rem; font-weight: 800; color: #333; margin-bottom: 5px; }
-        .hotel-date { font-size: 0.8rem; color: #666; margin-bottom: 15px; }
-        .hotel-address-box {
-            background: #F8F9FA; /* 灰色背景框 */
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-            color: #333;
-            line-height: 1.5;
-        }
-        .hotel-remark { font-size: 0.8rem; color: #666; margin-top: 8px; }
-        
-        /* 酒店底部按钮组 */
-        .hotel-btns { display: flex; gap: 10px; }
-        .btn-nav { 
-            flex: 2; /* 导航按钮占宽一点 */
-            background: var(--primary); color: white; 
-            text-align: center; padding: 12px; border-radius: 8px; 
-            text-decoration: none; font-weight: 700; font-size: 0.95rem; 
-            border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
-        .btn-copy { 
-            flex: 1; /* 复制按钮占窄一点 */
-            background: #eee; color: #555; 
-            text-align: center; padding: 12px; border-radius: 8px; 
-            font-weight: 700; font-size: 0.95rem; 
-            border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
+        a.nav-btn { display: inline-flex; align-items: center; gap: 6px; background: #BC002D; color: white; padding: 8px 16px; border-radius: 6px; font-size: 0.8rem; text-decoration: none; font-weight: 600; margin-top: 5px; box-shadow: 0 2px 5px rgba(188, 0, 45, 0.2); }
 
-
-        /* 记账本样式 (保持不变) */
+        /* === 记账本样式 (保持不变) === */
         .expense-header { background: linear-gradient(135deg, #C41E3A, #A01830); color: white; padding: 30px 20px; text-align: center; margin: 15px; border-radius: 16px; box-shadow: 0 10px 20px rgba(196, 30, 58, 0.2); }
         .total-num { font-size: 2.5rem; font-weight: 800; }
         .input-card { background: white; margin: 0 15px 20px; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
@@ -115,21 +132,19 @@
         .expense-item { background: white; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border: 1px solid #f9f9f9; }
         .btn-del { border: none; background: none; color: #ddd; margin-left: 10px; padding: 5px; }
 
-        /* 底部导航 (保持不变) */
+        /* 底部导航 */
         .tab-bar { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 85%; max-width: 400px; background: white; border-radius: 50px; display: flex; padding: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 1000; }
         .tab-item { flex: 1; text-align: center; color: #aaa; padding: 8px 0; border-radius: 30px; font-size: 0.75rem; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; }
         .tab-item.active { background: #FEE8EC; color: var(--primary); }
-        /* 旧的 nav-btn 样式保留给行程用 */
-        a.nav-btn { display: inline-flex; align-items: center; gap: 6px; background: #BC002D; color: white; padding: 8px 16px; border-radius: 6px; font-size: 0.8rem; text-decoration: none; font-weight: 600; margin-top: 5px; box-shadow: 0 2px 5px rgba(188, 0, 45, 0.2); }
     </style>
 </head>
 <body>
 
     <header>
         <h1 id="app-title">Loading...</h1>
-        <div class="subtitle-row" style="display:flex; justify-content:space-between;">
+        <div class="subtitle-row" style="display:flex; justify-content:space-between; align-items:center;">
             <p id="app-subtitle">Connecting...</p>
-            <span style="font-size:0.65rem; color:rgba(255,255,255,0.7); font-style:italic;">Designed by isonnn</span>
+            <span class="credit-tag">Designed by isonnn</span>
         </div>
     </header>
 
@@ -191,7 +206,7 @@
             el.classList.add('active');
         }
 
-        // === 1. 行程逻辑 (保持上次修改不变) ===
+        // === 1. 行程逻辑 ===
         function loadItinerary() {
             Papa.parse(urls.itinerary, { download: true, complete: res => {
                 const data = res.data;
@@ -203,14 +218,8 @@
                 let daysMap = new Map();
                 data.slice(4).forEach(r => {
                     if(!r[0] || r[0] === 'Day') return;
-                    if(!daysMap.has(r[0])) {
-                        daysMap.set(r[0], { n: r[0], d: r[1], l: r[3], e: [] });
-                    }
-                    if(r[4]) {
-                        daysMap.get(r[0]).e.push({ 
-                            time: r[2], act: r[4], rem: r[5], map: r[6]
-                        });
-                    }
+                    if(!daysMap.has(r[0])) { daysMap.set(r[0], { n: r[0], d: r[1], l: r[3], e: [] }); }
+                    if(r[4]) { daysMap.get(r[0]).e.push({ time: r[2], act: r[4], rem: r[5], map: r[6] }); }
                 });
 
                 const cont = document.getElementById('itinerary-container');
@@ -224,18 +233,11 @@
                             ${e.rem ? `<div class="event-remark">${e.rem}</div>` : ''}
                             ${e.map && e.map.startsWith('http') ? `<a href="${e.map}" target="_blank" class="nav-btn">📍 路线 (Route)</a>` : ''}
                         </div>`).join('');
-                        
                     cont.innerHTML += `
                         <div class="card">
                             <div class="card-header" onclick="this.parentElement.classList.toggle('open')">
-                                <div class="header-left">
-                                    <div class="day-num">${d.n}</div>
-                                    <div class="day-date">${d.d}</div>
-                                </div>
-                                <div class="header-right">
-                                    <div class="day-title">${d.l}</div>
-                                    <i class="fas fa-chevron-down toggle-icon"></i>
-                                </div>
+                                <div class="header-left"><div class="day-num">${d.n}</div><div class="day-date">${d.d}</div></div>
+                                <div class="header-right"><div class="day-title">${d.l}</div><i class="fas fa-chevron-down toggle-icon"></i></div>
                             </div>
                             <div class="card-body">${evs}</div>
                         </div>`;
@@ -243,66 +245,57 @@
             }});
         }
 
-        // === 2. 酒店逻辑重写 (适配图二和图四 Excel 结构) ===
+        // === 2. 酒店逻辑 (严格按照图四 Excel 列索引) ===
         function loadHotels() {
             Papa.parse(urls.hotel, { download: true, complete: res => {
                 const cont = document.getElementById('hotel-container');
                 cont.innerHTML = "";
-                // 跳过表头从第2行开始读
-                res.data.slice(1).forEach((h, index) => {
-                    // 确保有地点和酒店名才渲染
-                    if(!h[1] || !h[2]) return; 
-                    
+                
+                // 跳过第1行表头，从第2行开始读取
+                res.data.slice(1).forEach((h, i) => {
                     // Excel 映射:
-                    // h[0]=Date, h[1]=Location, h[2]=HotelName, h[3]=Address, 
+                    // h[0]=Date, h[1]=Location, h[2]=HotelName, h[3]=Address
                     // h[4]=Tag(E列), h[5]=Remarks(F列), h[6]=MapLink(G列)
-                    
-                    const addressText = h[3] || '暂无地址信息';
+                    if(!h[2]) return; // 如果没有酒店名则不显示
+
                     const tag = h[4] || '住宿';
+                    const tagClass = tag.toLowerCase().includes('airbnb') ? 'tag-airbnb' : 'tag-hotel';
                     
                     cont.innerHTML += `
                         <div class="hotel-card">
-                            <span class="hotel-tag">${tag}</span>
-                            <div class="hotel-title">${index + 1}. ${h[1]}: ${h[2]}</div>
+                            <span class="hotel-tag ${tagClass}">${tag}</span>
+                            <div class="hotel-header-row">
+                                <i class="fas fa-map-marker-alt hotel-icon-pin"></i>
+                                <div class="hotel-title">${i + 1}. ${h[1]}: ${h[2]}</div>
+                            </div>
                             <div class="hotel-date">${h[0] || ''}</div>
                             
                             <div class="hotel-address-box">
-                                <div>${addressText}</div>
-                                ${h[5] ? `<div class="hotel-remark">*${h[5]}</div>` : ''}
+                                <div>${h[3] || '暂无地址'}</div>
+                                ${h[5] ? `<span class="hotel-remark">*${h[5]}</span>` : ''}
                             </div>
                             
                             <div class="hotel-btns">
-                                ${h[6] ? `<a href="${h[6]}" target="_blank" class="btn-nav"><i class="fas fa-location-arrow"></i> 导航前往</a>` : `<button class="btn-nav" disabled style="opacity:0.5; cursor:not-allowed;"><i class="fas fa-location-arrow"></i> 暂无导航</button>`}
-                                <button class="btn-copy" onclick="copyAddress('${addressText.replace(/'/g, "\\'")}')"><i class="fas fa-copy"></i> 复制地址</button>
+                                ${h[6] ? `<a href="${h[6]}" target="_blank" class="btn-nav"><i class="fas fa-location-arrow"></i> 导航前往</a>` : `<button class="btn-nav" disabled style="opacity:0.5; cursor:not-allowed;">暂无导航</button>`}
+                                <button class="btn-copy" onclick="copyAddress('${(h[3] || '').replace(/'/g, "\\'")}')"><i class="fas fa-copy"></i> 复制地址</button>
                             </div>
                         </div>`;
                 });
             }});
         }
 
-        // 添加复制地址功能
         function copyAddress(text) {
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(text).then(() => alert("地址已复制！")).catch(() => alert("复制失败，请手动复制"));
-            } else {
-                // 后备方案
-                let textArea = document.createElement("textarea");
-                textArea.value = text;
-                textArea.style.position = "fixed";
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
-                try {
-                    document.execCommand('copy');
-                    alert("地址已复制！");
-                } catch (err) {
-                    alert("复制失败，请手动复制");
-                }
-                document.body.removeChild(textArea);
-            }
+            if(!text) return;
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            alert("✅ 地址已复制：\n" + text);
         }
 
-        // === 3. 记账逻辑 (保持不变) ===
+        // === 3. 记账逻辑 ===
         function loadSettings() {
             Papa.parse(urls.settings, { download: true, complete: res => {
                 const s = res.data;
@@ -326,11 +319,7 @@
             const amt = parseFloat(document.getElementById('amt-input').value);
             const note = document.getElementById('note-input').value;
             if (!amt) return alert("请输入金额");
-
-            const newEx = {
-                id: Date.now(), amount: amt, note: note || currentCat.name,
-                cat: currentCat.name, icon: currentCat.icon, date: new Date().toLocaleDateString()
-            };
+            const newEx = { id: Date.now(), amount: amt, note: note || currentCat.name, cat: currentCat.name, icon: currentCat.icon, date: new Date().toLocaleDateString() };
             expenses.unshift(newEx);
             localStorage.setItem('my_trip_expenses', JSON.stringify(expenses));
             document.getElementById('amt-input').value = '';
@@ -350,7 +339,6 @@
             const list = document.getElementById('expense-list');
             list.innerHTML = '';
             let totalHome = 0;
-
             expenses.forEach(e => {
                 const homeVal = e.amount * config.rate;
                 totalHome += homeVal;
