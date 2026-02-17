@@ -12,14 +12,12 @@
         :root { --primary-red: #C41E3A; --bg: #F5F7FA; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); margin: 0; padding-bottom: 120px; color: #333; -webkit-tap-highlight-color: transparent; }
         
-        /* Header 区域：包含低调签名 */
         header { background: #fff; padding: 20px 25px; border-top: 10px solid var(--primary-red); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         header h1 { margin: 0; font-size: 1.4rem; color: #1a1a1a; font-weight: 800; }
         .subtitle-row { display: flex; justify-content: space-between; align-items: baseline; margin-top: 5px; }
         header p { margin: 0; color: #888; font-size: 0.9rem; font-weight: 500; }
         .credit-tag { font-size: 0.65rem; color: #ddd; font-style: italic; font-weight: 400; }
 
-        /* 行程页面卡片样式 */
         .day-card { background: white; border-radius: 12px; margin: 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.02); }
         .card-header { display: flex; height: 80px; cursor: pointer; }
         .header-left { background: var(--primary-red); color: white; width: 70px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
@@ -32,7 +30,6 @@
         .day-card.open .card-body { display: block; }
         .day-card.open .fa-chevron-down { transform: rotate(180deg); color: var(--primary-red); }
 
-        /* 时间线样式 */
         .timeline-item { position: relative; padding-left: 25px; border-left: 2px solid #eee; padding-bottom: 25px; }
         .timeline-item:last-child { border-left-color: transparent; }
         .timeline-dot { position: absolute; left: -7px; top: 2px; width: 12px; height: 12px; background: white; border: 3px solid var(--primary-red); border-radius: 50%; }
@@ -40,16 +37,13 @@
         .event-title { font-weight: 800; font-size: 1rem; margin: 4px 0; color: #222; }
         .event-remark { font-size: 0.85rem; color: #666; line-height: 1.5; background: #f9f9f9; padding: 10px; border-radius: 6px; margin-top: 8px; }
         
-        /* 导航按钮样式 */
         .nav-btn { display: inline-flex; align-items: center; gap: 5px; background: #fff; border: 1px solid #eee; padding: 8px 16px; border-radius: 20px; font-size: 0.75rem; text-decoration: none; color: #333; font-weight: 600; margin-top: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
 
-        /* 底部导航栏 */
         .tab-bar { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 75%; max-width: 320px; background: white; border-radius: 50px; display: flex; padding: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 1000; }
         .tab-item { flex: 1; text-align: center; color: #aaa; padding: 8px 0; border-radius: 30px; font-size: 0.75rem; font-weight: bold; display: flex; flex-direction: column; align-items: center; gap: 2px; }
         .tab-item.active { background: #FEE8EC; color: var(--primary-red); }
         .tab-icon { font-size: 1.1rem; }
 
-        /* 加载状态 */
         .loading { text-align: center; padding: 100px 0; color: #999; font-size: 0.9rem; }
     </style>
 </head>
@@ -85,58 +79,60 @@
     </div>
 
     <script>
-        // === 请务必替换以下链接为你发布的 CSV 链接 ===
+        // === 🚨 请在此处粘贴你的 Google Sheet CSV 发布链接 🚨 ===
         const csvUrl = '你的_CSV_发布链接_填在这里';
 
         window.onload = function() { fetchItinerary(); };
 
         function fetchItinerary() {
+            if (!csvUrl || csvUrl.includes('填在这里')) {
+                document.getElementById('itinerary-container').innerHTML = "⚠️ 请先在代码中配置 CSV 链接。";
+                return;
+            }
+
             Papa.parse(csvUrl, {
                 download: true,
                 complete: function(results) {
                     const data = results.data;
                     
                     // 1. 设置主副标题
-                    // B1 = APP TITLE, B2 = SUBTITLE
-                    document.getElementById('app-title').innerText = data[0][1] || "Travel App";
-                    document.getElementById('app-subtitle').innerText = data[1][1] || "My Trip";
+                    if (data[0] && data[0][1]) document.getElementById('app-title').innerText = data[0][1];
+                    if (data[1] && data[1][1]) document.getElementById('app-subtitle').innerText = data[1][1];
                     
-                    // 2. 核心逻辑：解析数据行 (跳过前 4 行标题)
+                    // 2. 解析数据行 (跳过前 4 行标题与表头)
                     const rows = data.slice(4);
                     const groupedDays = groupItinerary(rows);
                     renderItinerary(groupedDays);
                 },
                 error: function() {
-                    document.getElementById('itinerary-container').innerHTML = "⚠️ 连接失败，请检查 Google Sheet 发布设置。";
+                    document.getElementById('itinerary-container').innerHTML = "⚠️ 连接失败，请检查 Google Sheet 的“发布到网页”设置。";
                 }
             });
         }
 
-        // --- 逻辑：自动归纳 Day 1, Day 1 的内容至同一个卡片 ---
         function groupItinerary(rows) {
             let daysMap = new Map();
 
             rows.forEach(row => {
-                let dayLabel = row[0]; // Day 列 (如 D1, D2)
-                if (!dayLabel || dayLabel.trim() === "") return;
+                let dayLabel = row[0]; // A列: Day
+                if (!dayLabel || dayLabel.trim() === "" || dayLabel === "Day") return;
 
-                // 如果该 Day 第一次出现，创建基础卡片
                 if (!daysMap.has(dayLabel)) {
                     daysMap.set(dayLabel, {
                         dayNum: dayLabel,
-                        date: row[1],    // Date 列
-                        location: row[3], // Location 列
+                        date: row[1],     // B列: Date
+                        location: row[3], // D列: Location
                         events: []
                     });
                 }
 
-                // 添加具体活动内容 (已适配删除 Description 后的索引)
-                if (row[4]) { // Activity 列
+                // 适配删除 Description 后的列索引
+                if (row[4]) { // E列: Activity
                     daysMap.get(dayLabel).events.push({
-                        time: row[2],     // Time 列
-                        activity: row[4], // Activity 列
-                        remarks: row[5],  // Remarks 列
-                        mapUrl: row[6]    // Map Links 列
+                        time: row[2],     // C列: Time
+                        activity: row[4], // E列: Activity
+                        remarks: row[5],  // F列: Remarks
+                        mapUrl: row[6]    // G列: Map Links
                     });
                 }
             });
@@ -148,7 +144,7 @@
             container.innerHTML = '';
 
             if (days.length === 0) {
-                container.innerHTML = "📭 暂无行程数据，请在表格中填写。";
+                container.innerHTML = "📭 暂无有效行程数据，请检查表格内容。";
                 return;
             }
 
@@ -163,7 +159,7 @@
                         <div class="event-time">${ev.time || ''}</div>
                         <div class="event-title">${ev.activity}</div>
                         ${ev.remarks ? `<div class="event-remark">${ev.remarks}</div>` : ''}
-                        ${ev.mapUrl && ev.mapUrl !== '123' ? `<a href="${ev.mapUrl}" target="_blank" class="nav-btn"><i class="fas fa-location-arrow"></i> 导航</a>` : ''}
+                        ${ev.mapUrl && ev.mapUrl.startsWith('http') ? `<a href="${ev.mapUrl}" target="_blank" class="nav-btn"><i class="fas fa-location-arrow"></i> 导航</a>` : ''}
                     </div>
                 `).join('');
 
