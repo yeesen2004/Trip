@@ -18,165 +18,161 @@
         header p { margin: 0; color: #888; font-size: 0.9rem; font-weight: 500; }
         .credit-tag { font-size: 0.65rem; color: #ddd; font-style: italic; font-weight: 400; }
 
-        .day-card { background: white; border-radius: 12px; margin: 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.02); }
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* 卡片通用样式 */
+        .card { background: white; border-radius: 12px; margin: 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.02); }
         .card-header { display: flex; height: 80px; cursor: pointer; }
         .header-left { background: var(--primary-red); color: white; width: 70px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .day-num { font-size: 1.4rem; font-weight: 900; }
-        .day-date { font-size: 0.75rem; opacity: 0.9; }
         .header-right { flex: 1; padding: 0 15px; display: flex; justify-content: space-between; align-items: center; }
-        .day-info h3 { margin: 0; font-size: 1.1rem; font-weight: 700; }
         
-        .card-body { display: none; padding: 20px; border-top: 1px solid #f8f8f8; }
-        .day-card.open .card-body { display: block; }
-        .day-card.open .fa-chevron-down { transform: rotate(180deg); color: var(--primary-red); }
-
-        .timeline-item { position: relative; padding-left: 25px; border-left: 2px solid #eee; padding-bottom: 25px; }
+        /* 行程时间线 */
+        .timeline-item { position: relative; padding-left: 25px; border-left: 2px solid #eee; padding-bottom: 25px; margin-left: 20px; margin-right: 20px; }
         .timeline-item:last-child { border-left-color: transparent; }
         .timeline-dot { position: absolute; left: -7px; top: 2px; width: 12px; height: 12px; background: white; border: 3px solid var(--primary-red); border-radius: 50%; }
-        .event-time { font-weight: 700; color: var(--primary-red); font-size: 0.85rem; font-family: monospace; }
-        .event-title { font-weight: 800; font-size: 1rem; margin: 4px 0; color: #222; }
-        .event-remark { font-size: 0.85rem; color: #666; line-height: 1.5; background: #f9f9f9; padding: 10px; border-radius: 6px; margin-top: 8px; }
         
-        .nav-btn { display: inline-flex; align-items: center; gap: 5px; background: #fff; border: 1px solid #eee; padding: 8px 16px; border-radius: 20px; font-size: 0.75rem; text-decoration: none; color: #333; font-weight: 600; margin-top: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        /* 酒店样式 */
+        .hotel-info { padding: 15px; border-left: 5px solid var(--primary-red); margin: 15px; background: white; border-radius: 8px; }
 
-        .tab-bar { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 75%; max-width: 320px; background: white; border-radius: 50px; display: flex; padding: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 1000; }
-        .tab-item { flex: 1; text-align: center; color: #aaa; padding: 8px 0; border-radius: 30px; font-size: 0.75rem; font-weight: bold; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        /* 记账样式 */
+        .expense-summary { background: var(--primary-red); color: white; padding: 25px; text-align: center; margin: 15px; border-radius: 15px; }
+
+        /* 导航按钮 */
+        .nav-btn { display: inline-flex; align-items: center; gap: 5px; background: #fff; border: 1px solid #eee; padding: 8px 16px; border-radius: 20px; font-size: 0.75rem; text-decoration: none; color: #333; font-weight: 600; margin-top: 10px; }
+
+        /* 底部导航栏 */
+        .tab-bar { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 85%; max-width: 400px; background: white; border-radius: 50px; display: flex; padding: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 1000; }
+        .tab-item { flex: 1; text-align: center; color: #aaa; padding: 8px 0; border-radius: 30px; font-size: 0.75rem; font-weight: bold; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
         .tab-item.active { background: #FEE8EC; color: var(--primary-red); }
-        .tab-icon { font-size: 1.1rem; }
-
-        .loading { text-align: center; padding: 100px 0; color: #999; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1 id="app-title">正在加载...</h1>
+        <h1 id="app-title">Loading...</h1>
         <div class="subtitle-row">
-            <p id="app-subtitle">同步云端数据中</p>
+            <p id="app-subtitle">Connecting...</p>
             <span class="credit-tag">Designed by isonnn</span>
         </div>
     </header>
 
-    <div id="itinerary-page">
-        <div id="itinerary-container" class="loading">
-            <i class="fas fa-sync fa-spin"></i><br><br>正在从 Google Sheet 同步最新行程...
-        </div>
+    <div id="tab-itinerary" class="tab-content active">
+        <div id="itinerary-container"></div>
     </div>
 
-    <div class="tab-bar">
-        <div class="tab-item active">
-            <span class="tab-icon">📅</span>
-            <span>行程</span>
-        </div>
-        <div class="tab-item" onclick="alert('酒店模块开发中...')">
-            <span class="tab-icon">🏨</span>
-            <span>酒店</span>
-        </div>
-        <div class="tab-item" onclick="alert('记账模块开发中...')">
-            <span class="tab-icon">💰</span>
-            <span>记账</span>
-        </div>
+    <div id="tab-hotel" class="tab-content">
+        <div id="hotel-container"></div>
     </div>
+
+    <div id="tab-expense" class="tab-content">
+        <div class="expense-summary">
+            <div style="font-size: 0.9rem; opacity: 0.8;">估算总支出</div>
+            <div id="total-cost" style="font-size: 2.2rem; font-weight: 800; margin: 5px 0;">RM 0.00</div>
+            <div id="exchange-rate" style="font-size: 0.75rem; opacity: 0.7;">正在加载汇率...</div>
+        </div>
+        <div id="expense-container" style="padding: 0 15px;"></div>
+    </div>
+
+    <nav class="tab-bar">
+        <div class="tab-item active" onclick="switchTab('itinerary', this)"><span style="font-size:1.2rem">📅</span>行程</div>
+        <div class="tab-item" onclick="switchTab('hotel', this)"><span style="font-size:1.2rem">🏨</span>酒店</div>
+        <div class="tab-item" onclick="switchTab('expense', this)"><span style="font-size:1.2rem">💰</span>记账</div>
+    </nav>
 
     <script>
-        // === 🚨 请在此处粘贴你的 Google Sheet CSV 发布链接 🚨 ===
-        const csvUrl = '你的_CSV_发布链接_填在这里';
+        const urls = {
+            itinerary: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQpYPQwHzRDxweD0gs48yJH7lBy2sdN9m9oZnSQPa55Rjhnr2uTdU3V_UGHjVMRxxoYSzoEepZWAS2E/pub?gid=676918941&single=true&output=csv',
+            hotel: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQpYPQwHzRDxweD0gs48yJH7lBy2sdN9m9oZnSQPa55Rjhnr2uTdU3V_UGHjVMRxxoYSzoEepZWAS2E/pub?gid=237062416&single=true&output=csv',
+            settings: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQpYPQwHzRDxweD0gs48yJH7lBy2sdN9m9oZnSQPa55Rjhnr2uTdU3V_UGHjVMRxxoYSzoEepZWAS2E/pub?gid=2009249548&single=true&output=csv'
+        };
 
-        window.onload = function() { fetchItinerary(); };
+        window.onload = function() {
+            loadItinerary();
+            loadHotels();
+            loadSettings();
+        };
 
-        function fetchItinerary() {
-            if (!csvUrl || csvUrl.includes('填在这里')) {
-                document.getElementById('itinerary-container').innerHTML = "⚠️ 请先在代码中配置 CSV 链接。";
-                return;
-            }
+        function switchTab(id, el) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + id).classList.add('active');
+            document.querySelectorAll('.tab-item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+        }
 
-            Papa.parse(csvUrl, {
+        function loadItinerary() {
+            Papa.parse(urls.itinerary, {
                 download: true,
                 complete: function(results) {
                     const data = results.data;
+                    document.getElementById('app-title').innerText = data[0][1] || "Travel App";
+                    document.getElementById('app-subtitle').innerText = data[1][1] || "Itinerary";
                     
-                    // 1. 设置主副标题
-                    if (data[0] && data[0][1]) document.getElementById('app-title').innerText = data[0][1];
-                    if (data[1] && data[1][1]) document.getElementById('app-subtitle').innerText = data[1][1];
-                    
-                    // 2. 解析数据行 (跳过前 4 行标题与表头)
                     const rows = data.slice(4);
-                    const groupedDays = groupItinerary(rows);
-                    renderItinerary(groupedDays);
-                },
-                error: function() {
-                    document.getElementById('itinerary-container').innerHTML = "⚠️ 连接失败，请检查 Google Sheet 的“发布到网页”设置。";
+                    let daysMap = new Map();
+                    rows.forEach(row => {
+                        if (!row[0] || row[0] === "Day") return;
+                        if (!daysMap.has(row[0])) {
+                            daysMap.set(row[0], { num: row[0], date: row[1], loc: row[3], events: [] });
+                        }
+                        if (row[4]) daysMap.get(row[0]).events.push({ time: row[2], act: row[4], rem: row[5], map: row[6] });
+                    });
+                    
+                    const container = document.getElementById('itinerary-container');
+                    daysMap.forEach(d => {
+                        let evHtml = d.events.map(ev => `
+                            <div class="timeline-item">
+                                <div class="timeline-dot"></div>
+                                <div style="color:var(--primary-red); font-weight:700; font-size:0.8rem;">${ev.time}</div>
+                                <div style="font-weight:800; margin:3px 0;">${ev.act}</div>
+                                <div style="font-size:0.85rem; color:#666; background:#f9f9f9; padding:8px; border-radius:5px;">${ev.rem}</div>
+                                ${ev.map && ev.map !== '123' ? `<a href="${ev.map}" target="_blank" class="nav-btn">📍 导航</a>` : ''}
+                            </div>
+                        `).join('');
+                        container.innerHTML += `
+                            <div class="card">
+                                <div class="card-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'block' ? 'none' : 'block'">
+                                    <div class="header-left"><div style="font-size:1.2rem; font-weight:900;">${d.num}</div><div style="font-size:0.7rem;">${d.date}</div></div>
+                                    <div class="header-right"><div style="font-weight:700;">${d.loc}</div><i class="fas fa-chevron-down" style="color:#ddd;"></i></div>
+                                </div>
+                                <div style="display:none; padding:20px 0;">${evHtml}</div>
+                            </div>`;
+                    });
                 }
             });
         }
 
-        function groupItinerary(rows) {
-            let daysMap = new Map();
-
-            rows.forEach(row => {
-                let dayLabel = row[0]; // A列: Day
-                if (!dayLabel || dayLabel.trim() === "" || dayLabel === "Day") return;
-
-                if (!daysMap.has(dayLabel)) {
-                    daysMap.set(dayLabel, {
-                        dayNum: dayLabel,
-                        date: row[1],     // B列: Date
-                        location: row[3], // D列: Location
-                        events: []
-                    });
-                }
-
-                // 适配删除 Description 后的列索引
-                if (row[4]) { // E列: Activity
-                    daysMap.get(dayLabel).events.push({
-                        time: row[2],     // C列: Time
-                        activity: row[4], // E列: Activity
-                        remarks: row[5],  // F列: Remarks
-                        mapUrl: row[6]    // G列: Map Links
+        function loadHotels() {
+            Papa.parse(urls.hotel, {
+                download: true,
+                header: true,
+                complete: function(results) {
+                    const container = document.getElementById('hotel-container');
+                    results.data.forEach(h => {
+                        if(!h['Hotel Name']) return;
+                        container.innerHTML += `
+                            <div class="hotel-info">
+                                <div style="font-weight:800; font-size:1.1rem;">${h['Hotel Name']}</div>
+                                <div style="color:var(--primary-red); font-size:0.85rem; margin:5px 0;">📅 ${h['Date'] || ''}</div>
+                                <div style="font-size:0.9rem; color:#666;">${h['Address'] || ''}</div>
+                                ${h['Map Link'] ? `<a href="${h['Map Link']}" target="_blank" class="nav-btn" style="background:var(--primary-red); color:white; border:none;">📍 查看地图</a>` : ''}
+                            </div>`;
                     });
                 }
             });
-            return Array.from(daysMap.values());
         }
 
-        function renderItinerary(days) {
-            const container = document.getElementById('itinerary-container');
-            container.innerHTML = '';
-
-            if (days.length === 0) {
-                container.innerHTML = "📭 暂无有效行程数据，请检查表格内容。";
-                return;
-            }
-
-            days.forEach(d => {
-                const card = document.createElement('div');
-                card.className = 'day-card';
-                card.onclick = function() { this.classList.toggle('open'); };
-                
-                let timelineHtml = d.events.map(ev => `
-                    <div class="timeline-item">
-                        <div class="timeline-dot"></div>
-                        <div class="event-time">${ev.time || ''}</div>
-                        <div class="event-title">${ev.activity}</div>
-                        ${ev.remarks ? `<div class="event-remark">${ev.remarks}</div>` : ''}
-                        ${ev.mapUrl && ev.mapUrl.startsWith('http') ? `<a href="${ev.mapUrl}" target="_blank" class="nav-btn"><i class="fas fa-location-arrow"></i> 导航</a>` : ''}
-                    </div>
-                `).join('');
-
-                card.innerHTML = `
-                    <div class="card-header">
-                        <div class="header-left">
-                            <div class="day-num">${d.dayNum}</div>
-                            <div class="day-date">${d.date}</div>
-                        </div>
-                        <div class="header-right">
-                            <div class="day-info"><h3>${d.location || '今日行程'}</h3></div>
-                            <i class="fas fa-chevron-down" style="color:#ddd; transition:0.3s"></i>
-                        </div>
-                    </div>
-                    <div class="card-body">${timelineHtml}</div>
-                `;
-                container.appendChild(card);
+        function loadSettings() {
+            Papa.parse(urls.settings, {
+                download: true,
+                complete: function(results) {
+                    const s = results.data;
+                    const home = s.find(r => r[0] && r[0].includes('Home Currency'))?.[1] || 'MYR';
+                    const foreign = s.find(r => r[0] && r[0].includes('Foreign Currency'))?.[1] || 'JPY';
+                    const rate = s.find(r => r[0] && r[0].includes('Foreign Currency'))?.[2] || 100;
+                    document.getElementById('exchange-rate').innerText = `当前参考汇率: ${rate} ${foreign} = 1 ${home}`;
+                }
             });
         }
     </script>
