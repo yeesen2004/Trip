@@ -7,34 +7,33 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --primary: #C41E3A; --dark-red: #8E0E25; --bg: #F5F7FA; }
+        :root { --primary: #C41E3A; --bg: #F5F7FA; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding-bottom: 120px; color: #333; -webkit-tap-highlight-color: transparent; }
         
-        /* === 1. Header 修改：全红风格 + 顶部加厚 Banner === */
+        /* === 1. Header 修改：白底 + 顶部加厚红条 (Banner) === */
         header { 
-            background: var(--primary); /* Title 背景也是红色 */
-            border-top: 15px solid var(--dark-red); /* 顶部加厚的深色 Banner 条 */
+            background: #fff; /* Title 背景白色 */
             padding: 15px 25px; 
-            position: sticky; /* 固顶 */
+            border-top: 20px solid var(--primary); /* 顶部加厚红色 Banner */
+            position: sticky; /* 固顶效果 */
             top: 0; 
             z-index: 100; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-            color: white; /* 文字白色 */
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); /* 增加一点阴影让它浮起来 */
         }
-        h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: white; margin-bottom: 4px; }
-        p { margin: 0; color: rgba(255,255,255,0.9); font-size: 0.9rem; font-weight: 500; }
-        .credit-tag { font-size: 0.65rem; color: rgba(255,255,255,0.6) !important; font-style: italic; }
+        h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: #1a1a1a; margin-bottom: 4px; }
+        p { margin: 0; color: #888; font-size: 0.9rem; font-weight: 500; }
+        .credit-tag { font-size: 0.65rem; color: #ddd !important; font-style: italic; }
 
         .tab-content { display: none; animation: fadeIn 0.3s; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
 
-        /* === 2. 记账本样式 (参考图二 & 图三) === */
+        /* === 2. 记账本样式 (保持设计) === */
         .expense-header { 
             background: linear-gradient(135deg, #C41E3A, #A01830); 
             color: white; 
             padding: 30px 20px; 
-            text-align: center; /* 居中对齐 */
+            text-align: center; 
             margin: 15px; 
             border-radius: 16px; 
             box-shadow: 0 10px 20px rgba(196, 30, 58, 0.2); 
@@ -44,16 +43,14 @@
 
         .input-card { background: white; margin: 0 15px 20px; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         
-        /* 输入行样式优化 (参考图三) */
         .input-group { display: flex; gap: 10px; margin-bottom: 12px; }
         .form-input { 
             flex: 1; padding: 12px; 
             border: 1px solid #eee; border-radius: 8px; 
             font-size: 1rem; outline: none; background: #fff;
         }
-        /* 类别选择器样式 */
         .cat-select {
-            flex: 0.6; /* 宽度占比 */
+            flex: 0.6; 
             padding: 12px;
             border: 1px solid #eee; border-radius: 8px;
             background: white; font-size: 0.9rem; font-weight: 600; color: #333;
@@ -66,7 +63,7 @@
         .expense-item { background: white; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border: 1px solid #f9f9f9; }
         .btn-del { border: none; background: none; color: #ddd; margin-left: 10px; padding: 5px; }
 
-        /* === 其他保持不变的样式 === */
+        /* === 其他样式 (保持不变) === */
         .card { background: white; border-radius: 12px; margin: 15px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: none; }
         .card-header { display: flex; height: 80px; cursor: pointer; transition: background 0.2s; }
         .header-left { background: #BC002D; color: white; width: 70px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
@@ -157,7 +154,7 @@
             settings: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQpYPQwHzRDxweD0gs48yJH7lBy2sdN9m9oZnSQPa55Rjhnr2uTdU3V_UGHjVMRxxoYSzoEepZWAS2E/pub?gid=2009249548&single=true&output=csv'
         };
 
-        // 默认汇率，会被 Excel 覆盖
+        // 默认汇率
         let config = { home: 'MYR', foreign: 'JPY', rate: 0.026 }; 
         
         // 类别图标映射
@@ -179,7 +176,7 @@
             el.classList.add('active');
         }
 
-        // === 1. 行程逻辑 (保持不变) ===
+        // === 1. 行程逻辑 ===
         function loadItinerary() {
             Papa.parse(urls.itinerary, { download: true, complete: res => {
                 const data = res.data;
@@ -218,7 +215,7 @@
             }});
         }
 
-        // === 2. 酒店逻辑 (保持不变) ===
+        // === 2. 酒店逻辑 ===
         function loadHotels() {
             Papa.parse(urls.hotel, { download: true, complete: res => {
                 const cont = document.getElementById('hotel-container');
@@ -247,17 +244,20 @@
             alert("✅ 地址已复制");
         }
 
-        // === 3. 记账逻辑 (修正读取位置 B2, B3, C2) ===
+        // === 3. 记账逻辑 (新增: 动态更新金额Placeholder) ===
         function loadSettings() {
             Papa.parse(urls.settings, { download: true, complete: res => {
                 const s = res.data;
                 if(s && s.length > 2) {
-                    // Excel 映射: B2=Home, B3=Foreign, C2=Rate
                     config.home = s[1][1] || 'MYR'; 
-                    config.foreign = s[2][1] || 'USD';
+                    config.foreign = s[2][1] || 'USD'; // B3: USD
                     config.rate = parseFloat(s[1][2]) || 1; 
                     
                     document.getElementById('rate-display').innerText = `汇率参考: 1 ${config.foreign} = ${config.rate} ${config.home}`;
+                    
+                    // 动态更新输入框提示文字：例如 "金额 (USD)"
+                    document.getElementById('amt-input').placeholder = `金额 (${config.foreign})`;
+                    
                     renderExpenses();
                 }
             }});
