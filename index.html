@@ -3,7 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
     <meta name="theme-color" content="#C41E3A">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Travel App">
+    
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
     <title>Travel App</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
@@ -12,26 +21,24 @@
     <style>
         :root { --primary: #C41E3A; --dark-red: #8E0E25; --bg: #F5F7FA; }
         
-        /* === 1. 手机端 Banner 修复核心 === */
         html { 
-            background-color: var(--primary); /* 下拉回弹时，底层露出红色 */
+            background-color: var(--primary); 
         }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            background: var(--bg); /* 内容区域保持灰白 */
+            background: var(--bg); 
             margin: 0; 
             padding-bottom: 120px; 
             color: #333; 
             -webkit-tap-highlight-color: transparent; 
-            min-height: 100vh; /* 确保内容盖住红色背景，只有下拉时才露出来 */
+            min-height: 100vh; 
         }
         
-        /* Header 样式 */
         header { 
             background: rgba(255, 255, 255, 0.98); 
             backdrop-filter: blur(10px); 
             padding: 15px 25px; 
-            border-top: 15px solid var(--primary); /* 顶部红条 */
+            border-top: 15px solid var(--primary); 
             position: sticky; 
             top: 0; 
             z-index: 100; 
@@ -46,7 +53,6 @@
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
 
-        /* === 2. 记账本样式 (保持功能) === */
         .expense-header { 
             background: linear-gradient(135deg, #C41E3A, #A01830); 
             color: white; 
@@ -60,7 +66,6 @@
         .total-num { font-size: 2.5rem; font-weight: 800; margin: 5px 0; }
         .rate-info { font-size: 0.8rem; background: rgba(0,0,0,0.2); padding: 4px 12px; border-radius: 20px; display: inline-block; color: rgba(255,255,255,0.9); }
         
-        /* 复制按钮 */
         .btn-copy-report {
             background: rgba(255, 255, 255, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.4);
@@ -99,7 +104,6 @@
         .expense-item { background: white; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border: 1px solid #f9f9f9; }
         .btn-del { border: none; background: none; color: #ddd; margin-left: 10px; padding: 5px; }
 
-        /* === 其他保持不变 === */
         .card { background: white; border-radius: 12px; margin: 15px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: none; }
         .card-header { display: flex; height: 80px; cursor: pointer; transition: background 0.2s; }
         .header-left { background: #BC002D; color: white; width: 70px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
