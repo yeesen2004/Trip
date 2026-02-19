@@ -11,8 +11,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Travel App">
     
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/223/223468.png">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/223/223468.png">
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/223/223468.png?v=2">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/223/223468.png?v=2">
     <title>Travel App</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
@@ -218,7 +218,6 @@
             el.classList.add('active');
         }
 
-        // === 1. 行程逻辑 ===
         function loadItinerary() {
             Papa.parse(urls.itinerary, { download: true, complete: res => {
                 const data = res.data;
@@ -257,7 +256,6 @@
             }});
         }
 
-        // === 2. 酒店逻辑 ===
         function loadHotels() {
             Papa.parse(urls.hotel, { download: true, complete: res => {
                 const cont = document.getElementById('hotel-container');
@@ -286,7 +284,6 @@
             alert("✅ 地址已复制");
         }
 
-        // === 3. 记账逻辑 + 复制功能 ===
         function loadSettings() {
             Papa.parse(urls.settings, { download: true, complete: res => {
                 const s = res.data;
@@ -360,7 +357,6 @@
             document.getElementById('display-total').innerText = `${config.home} ${totalHome.toFixed(2)}`;
         }
 
-        // 复制报表功能
         function copyReport() {
             if (expenses.length === 0) return alert("还没有记账记录哦！");
             
