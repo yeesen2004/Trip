@@ -136,29 +136,30 @@
         .btn-nav { flex: 2; background: #BC002D; color: white; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 0.9rem; border: none; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 10px rgba(188, 0, 45, 0.2); }
         .btn-copy { flex: 1; background: #F0F0F0; color: #333; text-align: center; padding: 12px; border-radius: 8px; font-weight: 700; font-size: 0.9rem; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
         
-        /* === 修复后的 Tab Bar 样式 === */
+        /* === 修复后的强力 Tab Bar 样式 === */
         .tab-bar { 
             position: fixed; 
-            bottom: 25px; 
+            bottom: 20px; /* 稍微上移一点 */
             left: 50%; 
             transform: translateX(-50%); 
-            width: 90%; 
+            width: 90% !important; /* 强制 90% 宽度 */
             max-width: 400px; 
             background: white; 
             border-radius: 50px; 
             display: flex; 
             padding: 6px; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15); 
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15); 
             z-index: 1000;
-            box-sizing: border-box; /* 确保 padding 不撑大容器 */
+            box-sizing: border-box; /* 关键：确保 padding 内缩 */
+            overflow: hidden; /* 关键：强制裁切超出部分 */
         }
         .tab-item { 
-            flex: 1; 
+            flex: 1 1 0; /* 关键：强制均分空间，且允许收缩 */
             text-align: center; 
             color: #aaa; 
-            padding: 10px 0; 
+            padding: 10px 2px; /* 减少左右 padding */
             border-radius: 30px; 
-            font-size: 0.8rem; 
+            font-size: 0.7rem; /* 再次稍微调小字号 */
             font-weight: bold; 
             cursor: pointer; 
             display: flex; 
@@ -166,10 +167,13 @@
             align-items: center; 
             justify-content: center;
             gap: 2px;
-            min-width: 0; /* 防止内容撑开 flex 项 */
+            min-width: 0; /* 允许 flex 项收缩至小于其内容 */
+            white-space: nowrap; /* 关键：文字绝不换行 */
+            overflow: hidden; /* 关键：文字溢出裁切 */
+            text-overflow: ellipsis; /* 关键：文字溢出显示省略号 */
         }
         .tab-item span {
-            font-size: 1.2rem; /* 控制图标大小 */
+            font-size: 1.1rem; /* 稍微调小图标 */
             line-height: 1;
         }
         .tab-item.active { background: #FEE8EC; color: var(--primary); }
